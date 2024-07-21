@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // Import React and necessary hooks
 import {
   SafeAreaView,
   View,
@@ -7,93 +7,97 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import { Button, TextInput } from "react-native-paper";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigate } from "react-router-native";
+} from "react-native"; // Import necessary React Native components
+import { Button, TextInput } from "react-native-paper"; // Import Button and TextInput from react-native-paper
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage for storing and retrieving data
+import { useNavigate } from "react-router-native"; // Import useNavigate for navigation
 
 const ChatView = () => {
-  const [text, setText] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [token, setToken] = useState("");
-  const [conversationId, setConversationId] = useState(null);
-  const navigate = useNavigate();
+  const [text, setText] = useState(""); // State to hold the input text
+  const [messages, setMessages] = useState([]); // State to hold the list of messages
+  const [token, setToken] = useState(""); // State to hold the JWT token
+  const [conversationId, setConversationId] = useState(null); // State to hold the current conversation ID
+  const navigate = useNavigate(); // Hook for navigation
 
+  // useEffect to load the token from AsyncStorage when the component mounts
   useEffect(() => {
     const loadToken = async () => {
       try {
-        const savedToken = await AsyncStorage.getItem("userToken");
+        const savedToken = await AsyncStorage.getItem("userToken"); // Retrieve token from AsyncStorage
         if (savedToken) {
-          setToken(savedToken);
-          fetchConversations(savedToken);
+          setToken(savedToken); // Set the token state
+          fetchConversations(savedToken); // Fetch conversations with the retrieved token
         } else {
-          console.error("No token found");
+          console.error("No token found"); // Log error if no token is found
         }
       } catch (error) {
-        console.error("Error retrieving token:", error);
+        console.error("Error retrieving token:", error); // Log error if there's an issue retrieving the token
       }
     };
-    loadToken();
+    loadToken(); // Call loadToken function
   }, []);
 
+  // Function to fetch conversations from the backend
   const fetchConversations = async (token) => {
     try {
       const response = await fetch("http://10.0.2.2:5001/conversations", {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Include token in headers for authentication
         },
       });
 
       if (response.status === 401) {
-        console.error("Unauthorized access. Invalid token.");
+        console.error("Unauthorized access. Invalid token."); // Log error if unauthorized
         return;
       }
 
       const data = await response.json();
       if (data.length > 0) {
-        const firstConversation = data[0];
-        setConversationId(firstConversation._id);
+        const firstConversation = data[0]; // Get the first conversation
+        setConversationId(firstConversation._id); // Set the conversation ID
         setMessages(
           firstConversation.messages.map((msg) => ({
             text: msg.text,
             type: msg.sender,
           }))
-        );
+        ); // Set messages state with the messages from the conversation
       } else {
-        createNewConversation(token);
+        createNewConversation(token); // Create a new conversation if none exist
       }
     } catch (error) {
-      console.error("Error fetching conversations:", error);
+      console.error("Error fetching conversations:", error); // Log error if there's an issue fetching conversations
     }
   };
 
+  // Function to create a new conversation
   const createNewConversation = async (token) => {
     try {
       const response = await fetch("http://10.0.2.2:5001/conversations", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Include token in headers for authentication
         },
       });
 
       if (response.status === 401) {
-        console.error("Unauthorized access. Invalid token.");
+        console.error("Unauthorized access. Invalid token."); // Log error if unauthorized
         return;
       }
 
       const newConversation = await response.json();
-      setConversationId(newConversation._id);
+      setConversationId(newConversation._id); // Set the new conversation ID
     } catch (error) {
-      console.error("Error creating new conversation:", error);
+      console.error("Error creating new conversation:", error); // Log error if there's an issue creating a new conversation
     }
   };
 
+  // Function to handle sending a message
   const handleSend = async () => {
     if (text.trim()) {
-      const newMessage = { text, type: "user" };
-      setMessages([...messages, newMessage]);
-      setText("");
+      const newMessage = { text, type: "user" }; // Create a new message object
+      setMessages([...messages, newMessage]); // Add the new message to the messages state
+      setText(""); // Clear the input text
 
       try {
         const response = await fetch(
@@ -102,29 +106,29 @@ const ChatView = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${token}`, // Include token in headers for authentication
             },
-            body: JSON.stringify({ text, sender: "user" }),
+            body: JSON.stringify({ text, sender: "user" }), // Send message text and sender as the request body
           }
         );
 
         const responseText = await response.text();
-        console.log("Raw response:", responseText);
+        console.log("Raw response:", responseText); // Log the raw response
 
         if (response.status === 401) {
-          console.error("Unauthorized access. Invalid token.");
+          console.error("Unauthorized access. Invalid token."); // Log error if unauthorized
           return;
         }
 
-        const data = JSON.parse(responseText);
+        const data = JSON.parse(responseText); // Parse the response as JSON
         if (data.text) {
-          const responseMessage = { text: data.text, type: "bot" };
-          setMessages((prevMessages) => [...prevMessages, responseMessage]);
+          const responseMessage = { text: data.text, type: "bot" }; // Create a response message object
+          setMessages((prevMessages) => [...prevMessages, responseMessage]); // Add the response message to the messages state
         } else {
-          console.error("No response from the server");
+          console.error("No response from the server"); // Log error if there's no response text
         }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error:", error); // Log error if there's an issue sending the message
       }
     }
   };

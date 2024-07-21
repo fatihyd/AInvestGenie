@@ -1,0 +1,4 @@
+=> şuan çalışan: user'ın mesajı kaydoluyor
+    => !!!!yapılacak: bot'un da mesajı kaydet
+=> mesaj ve conv. birbirinden haberdar ve linkliler
+    => !!!!yapılacak: user'ın conversationlarından haberi yok / arrayine eklenecek

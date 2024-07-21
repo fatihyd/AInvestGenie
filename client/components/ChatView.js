@@ -120,17 +120,44 @@ const ChatView = () => {
           console.error("Unauthorized access. Invalid token."); // Log error if unauthorized
           return;
         }
-
-        const data = JSON.parse(responseText); // Parse the response as JSON
-        if (data.text) {
-          const responseMessage = { text: data.text, type: "bot" }; // Create a response message object
-          setMessages((prevMessages) => [...prevMessages, responseMessage]); // Add the response message to the messages state
-        } else {
-          console.error("No response from the server"); // Log error if there's no response text
-        }
+        // chat response
+        handleChatResponse(responseText);
       } catch (error) {
         console.error("Error:", error); // Log error if there's an issue sending the message
       }
+    }
+  };
+
+  const handleChatResponse = async (responseText) => {
+    const data = JSON.parse(responseText);
+    if (data.text) {
+      const responseMessage = { text: data.text, type: "bot" };
+      setMessages((prevMessages) => [...prevMessages, responseMessage]);
+
+      try {
+        console.log("Attempting to save bot response to database");
+        const response = await fetch(
+          `http://10.0.2.2:5001/messages/${conversationId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ text: data.text, sender: "bot" }),
+          }
+        );
+
+        if (response.ok) {
+          console.log("Bot response saved successfully.");
+        } else {
+          console.error("Failed to save bot response:", response.status);
+        }
+      } catch (error) {
+        console.error("Error saving bot response:", error);
+      }
+    } else {
+      console.error("No response from the server");
     }
   };
 
@@ -143,7 +170,6 @@ const ChatView = () => {
           onPress={() => navigate("/menu")}
           style={styles.menuButton}
           labelStyle={styles.buttonTexts}
-
         >
           Menü
         </Button>
@@ -166,18 +192,22 @@ const ChatView = () => {
               key={index}
               style={[
                 styles.messageWrapper,
-                message.type === "user" ? styles.userMessageWrapper : styles.botMessageWrapper,
+                message.type === "user"
+                  ? styles.userMessageWrapper
+                  : styles.botMessageWrapper,
               ]} // Wrapper for image and message
             >
               {message.type === "bot" && (
                 <Image
-                  source={require('../assets/bot.png')} // Load image from local assets
+                  source={require("../assets/bot.png")} // Load image from local assets
                   style={styles.botImage}
                 />
               )}
               <View
                 style={
-                  message.type === "user" ? styles.userMessage : styles.botMessage
+                  message.type === "user"
+                    ? styles.userMessage
+                    : styles.botMessage
                 }
               >
                 <Text style={styles.messageText}>{message.text}</Text>
@@ -193,16 +223,17 @@ const ChatView = () => {
             onChangeText={setText}
             style={styles.input}
             theme={{
-            colors: {
-              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
-            },
-          }}
+              colors: {
+                primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+              },
+            }}
           />
-          <Button icon="send" onPress={handleSend} 
+          <Button
+            icon="send"
+            onPress={handleSend}
             style={styles.sendButton}
             labelStyle={styles.buttonTexts}
           >
-          
             Gönder
           </Button>
         </View>
@@ -288,7 +319,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 1,
     //marginLeft: 5, // Add space between image and message bubble
-
   },
   botImage: {
     width: 35,

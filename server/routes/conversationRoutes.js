@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Conversation = require("../models/Conversation");
+const User = require("../models/User");
 const authenticateToken = require("../middleware/authMiddleware");
 
 // Get all conversations for a user
@@ -42,6 +43,12 @@ router.post("/", authenticateToken, async (req, res) => {
     const newConversation = new Conversation({ user: req.user.userId });
     await newConversation.save();
     res.status(201).json(newConversation);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.userId,
+      { $push: { conversations: newConversation._id } },
+      { new: true, upsert: false }
+    );
   } catch (error) {
     res
       .status(500)

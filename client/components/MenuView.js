@@ -21,9 +21,10 @@ const MenuView = () => {
     <SafeAreaView style={styles.safeArea}>
       <Button
         icon="arrow-left"
-        mode="contained"
+        mode="text"
         onPress={() => navigate("/chat")}
         style={styles.backButton}
+        labelStyle={styles.backButtonText}
       >
         Sohbet
       </Button>
@@ -59,11 +60,13 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginTop: 10,
     marginLeft: 10,
-    backgroundColor: "rgba(116, 140, 244, 0.5)",
+  },
+  backButtonText: {
+    color: "rgb(23, 75, 160)",
   },
   button: {
     marginTop: 16,
-    backgroundColor: "#748cf4",
+    backgroundColor: "rgb(23, 75, 160)",
   },
 });
 

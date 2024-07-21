@@ -34,31 +34,46 @@ const SignUpView = () => {
     <SafeAreaView style={styles.safeArea}>
       <Button
         icon="arrow-left"
-        mode="contained"
+        mode="text"
         onPress={() => navigate("/")}
         style={styles.backButton}
+        labelStyle={styles.backButtonText}
       >
         Ana Sayfa
       </Button>
       <View style={styles.container}>
-        <TextInput
-          label="İsim Soyisim"
-          value={fullName}
-          onChangeText={setFullName}
+      <TextInput
+          label="Ad Soyad"
+          value={email}
+          onChangeText={setEmail}
           style={styles.input}
+          theme={{
+            colors: {
+              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+            },
+          }}
         />
         <TextInput
           label="E-posta"
           value={email}
           onChangeText={setEmail}
           style={styles.input}
+          theme={{
+            colors: {
+              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+            },
+          }}
         />
         <TextInput
           label="Şifre"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
+          value={email}
+          onChangeText={setEmail}
           style={styles.input}
+          theme={{
+            colors: {
+              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+            },
+          }}
         />
         <Button onPress={handleSignUp} mode="contained" style={styles.button}>
           Üye Ol
@@ -82,15 +97,17 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginTop: 10,
     marginLeft: 10,
-    backgroundColor: "rgba(116, 140, 244, 0.5)",
+  },
+  backButtonText: {
+    color: "rgb(23, 75, 160)",
   },
   input: {
     marginBottom: 16,
-    backgroundColor: "rgba(116, 140, 244, 0.3)",
+    backgroundColor: "#eeeeee",
   },
   button: {
     marginTop: 16,
-    backgroundColor: "#748cf4",
+    backgroundColor: "rgb(23, 75, 160)",
   },
 });
 

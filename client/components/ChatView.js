@@ -7,6 +7,7 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  Image, // Import Image component
 } from "react-native"; // Import necessary React Native components
 import { Button, TextInput } from "react-native-paper"; // Import Button and TextInput from react-native-paper
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage for storing and retrieving data
@@ -138,8 +139,11 @@ const ChatView = () => {
       <View style={styles.header}>
         <Button
           icon="menu"
+          mode="text"
           onPress={() => navigate("/menu")}
           style={styles.menuButton}
+          labelStyle={styles.buttonTexts}
+
         >
           Menü
         </Button>
@@ -147,6 +151,7 @@ const ChatView = () => {
           icon="chat"
           onPress={() => createNewConversation(token)}
           style={styles.newChatButton}
+          labelStyle={styles.buttonTexts}
         >
           Yeni Sohbet
         </Button>
@@ -159,11 +164,24 @@ const ChatView = () => {
           {messages.map((message, index) => (
             <View
               key={index}
-              style={
-                message.type === "user" ? styles.userMessage : styles.botMessage
-              }
+              style={[
+                styles.messageWrapper,
+                message.type === "user" ? styles.userMessageWrapper : styles.botMessageWrapper,
+              ]} // Wrapper for image and message
             >
-              <Text style={styles.messageText}>{message.text}</Text>
+              {message.type === "bot" && (
+                <Image
+                  source={require('../assets/bot.png')} // Load image from local assets
+                  style={styles.botImage}
+                />
+              )}
+              <View
+                style={
+                  message.type === "user" ? styles.userMessage : styles.botMessage
+                }
+              >
+                <Text style={styles.messageText}>{message.text}</Text>
+              </View>
             </View>
           ))}
         </ScrollView>
@@ -174,8 +192,17 @@ const ChatView = () => {
             value={text}
             onChangeText={setText}
             style={styles.input}
+            theme={{
+            colors: {
+              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+            },
+          }}
           />
-          <Button icon="send" onPress={handleSend} style={styles.sendButton}>
+          <Button icon="send" onPress={handleSend} 
+            style={styles.sendButton}
+            labelStyle={styles.buttonTexts}
+          >
+          
             Gönder
           </Button>
         </View>
@@ -202,12 +229,24 @@ const styles = StyleSheet.create({
   menuButton: {
     margin: 10,
   },
+
   newChatButton: {
     margin: 10,
   },
   messageContainer: {
     flex: 1,
     padding: 10,
+  },
+  messageWrapper: {
+    flexDirection: "row", // Align image and message horizontally
+    alignItems: "center", // Center items vertically
+    marginBottom: 10, // Add space between messages
+  },
+  userMessageWrapper: {
+    justifyContent: "flex-end", // Align user's message to the right
+  },
+  botMessageWrapper: {
+    justifyContent: "flex-start", // Align bot's message to the left
   },
   inputContainer: {
     flexDirection: "row",
@@ -221,20 +260,26 @@ const styles = StyleSheet.create({
   sendButton: {
     marginBottom: 6,
   },
+  buttonTexts: {
+    color: "rgb(23, 75, 160)",
+  },
   userMessage: {
     alignSelf: "flex-end",
     backgroundColor: "#dcf8c6",
     borderRadius: 20,
     padding: 10,
-    marginBottom: 10,
     maxWidth: "80%",
+  },
+  botMessageWrapper: {
+    flexDirection: "row", // Align image and message horizontally
+    alignItems: "flex-start", // Align items vertically to the top
+    marginBottom: 10, // Add space between messages
   },
   botMessage: {
     alignSelf: "flex-start",
     backgroundColor: "#ebebeb",
     borderRadius: 20,
     padding: 10,
-    marginBottom: 10,
     maxWidth: "80%",
     borderColor: "#ccc",
     borderWidth: 1,
@@ -242,6 +287,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
+    //marginLeft: 5, // Add space between image and message bubble
+
+  },
+  botImage: {
+    width: 35,
+    height: 35,
+    marginRight: 10, // Space between image and message
+    alignSelf: "flex-start", // Align image to the top
   },
   messageText: {
     fontSize: 16,

@@ -35,9 +35,10 @@ const LoginView = () => {
     <SafeAreaView style={styles.safeArea}>
       <Button
         icon="arrow-left"
-        mode="contained"
+        mode="text"
         onPress={() => navigate("/")}
         style={styles.backButton}
+        labelStyle={styles.backButtonText}
       >
         Ana Sayfa
       </Button>
@@ -47,6 +48,11 @@ const LoginView = () => {
           value={email}
           onChangeText={setEmail}
           style={styles.input}
+          theme={{
+            colors: {
+              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+            },
+          }}
         />
         <TextInput
           label="Şifre"
@@ -54,6 +60,11 @@ const LoginView = () => {
           onChangeText={setPassword}
           secureTextEntry
           style={styles.input}
+          theme={{
+            colors: {
+              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+            },
+          }}
         />
         <Button onPress={handleLogin} mode="contained" style={styles.button}>
           Giriş Yap
@@ -77,15 +88,17 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginTop: 10,
     marginLeft: 10,
-    backgroundColor: "rgba(116, 140, 244, 0.5)",
+  },
+  backButtonText: {
+    color: "rgb(23, 75, 160)",
   },
   input: {
     marginBottom: 16,
-    backgroundColor: "rgba(116, 140, 244, 0.3)",
+    backgroundColor: "#eeeeee",
   },
   button: {
     marginTop: 16,
-    backgroundColor: "#748cf4",
+    backgroundColor: "rgb(23, 75, 160)",
   },
 });
 

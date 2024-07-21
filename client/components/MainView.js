@@ -11,19 +11,20 @@ const MainView = () => {
       <View style={styles.container}>
         <Image
           style={styles.companyLogo}
-          source={require("../assets/app_logo.png")}
+          source={require("../assets/app_logo.webp")}
         />
         <Button
           mode="contained"
           onPress={() => navigate("/login")}
-          style={styles.button}
+          style={styles.loginButton}
         >
           Giriş Yap
         </Button>
         <Button
-          mode="contained"
+          mode="outlined"
           onPress={() => navigate("/signup")}
-          style={styles.button}
+          style={styles.signupButton}
+          labelStyle={styles.signupButtonText}
         >
           Üye Ol
         </Button>
@@ -42,15 +43,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  button: {
+  loginButton: {
     marginVertical: 8,
     width: "80%",
-    backgroundColor: "#748cf4",
+    backgroundColor: "rgb(23, 75, 160)",
+  },
+  signupButton: {
+    marginVertical: 8,
+    width: "80%",
+  },
+  signupButtonText: {
+    color: "rgb(23, 75, 160)",
   },
   companyLogo: {
     marginBottom: 80,
-    width: 250,
-    height: 250,
+    width: 400,
+    height: 400,
   },
 });
 

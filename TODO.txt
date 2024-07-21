@@ -1,0 +1,6 @@
+=> Yeni Sohbet'e basınca DB'de sorun yok / yeni conversation ekleniyor. 
+    Ama uygulamada görünmüyor / yeni conversation'ı göstermiyor
+
+=> Menüde chat geçmişini göster
+
+=> RAG

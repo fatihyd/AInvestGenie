@@ -42,10 +42,10 @@ const SignUpView = () => {
         Ana Sayfa
       </Button>
       <View style={styles.container}>
-      <TextInput
+        <TextInput
           label="Ad Soyad"
-          value={email}
-          onChangeText={setEmail}
+          value={fullName}
+          onChangeText={setFullName}
           style={styles.input}
           theme={{
             colors: {
@@ -66,14 +66,15 @@ const SignUpView = () => {
         />
         <TextInput
           label="Şifre"
-          value={email}
-          onChangeText={setEmail}
+          value={password}
+          onChangeText={setPassword}
           style={styles.input}
           theme={{
             colors: {
               primary: "rgb(23, 75, 160)", // Change this to your desired focus color
             },
           }}
+          secureTextEntry
         />
         <Button onPress={handleSignUp} mode="contained" style={styles.button}>
           Üye Ol

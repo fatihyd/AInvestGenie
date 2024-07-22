@@ -14,7 +14,6 @@ const App = () => {
         <Route path="/login" element={<LoginView />} />
         <Route path="/signup" element={<SignUpView />} />
         <Route path="/chat" element={<ChatView />} />
-        <Route path="/chat/:conversationId" element={<ChatView />} />
         <Route path="/menu" element={<MenuView />} />
         <Route path="*" element={<MainView />} />
       </Routes>

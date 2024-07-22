@@ -1,7 +1,7 @@
-=> Yeni Sohbet'e basınca DB'de sorun yok / yeni conversation ekleniyor. 
-    Ama uygulamada görünmüyor / yeni conversation'ı göstermiyor
-
-=> Menüde chat geçmişini göster
-
 => RAG
 
+=> Görüntü muhabbeti
+
+=> Eski repodaki güzel küçük özellikler (İlk bot mesajı, text to speech, copy to clipboard)
+
+=> Backend deploy

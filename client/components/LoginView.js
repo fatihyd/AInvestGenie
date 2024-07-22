@@ -21,13 +21,34 @@ const LoginView = () => {
       const data = await response.json();
       if (response.ok) {
         await AsyncStorage.setItem("userToken", data.token);
-        navigate("/chat");
+        createNewConversation(data.token);
       } else {
         alert(data.message);
       }
     } catch (error) {
       console.error("Login Error:", error);
       alert("Error logging in");
+    }
+  };
+
+  const createNewConversation = async (token) => {
+    try {
+      const response = await fetch("http://10.0.2.2:5001/conversations", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401) {
+        console.error("Unauthorized access. Invalid token.");
+        return;
+      }
+
+      const newConversation = await response.json();
+      navigate("/chat", { state: { conversationId: newConversation._id } });
+    } catch (error) {
+      console.error("Error creating new conversation:", error);
     }
   };
 
@@ -50,7 +71,7 @@ const LoginView = () => {
           style={styles.input}
           theme={{
             colors: {
-              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+              primary: "rgb(23, 75, 160)",
             },
           }}
         />
@@ -62,7 +83,7 @@ const LoginView = () => {
           style={styles.input}
           theme={{
             colors: {
-              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+              primary: "rgb(23, 75, 160)",
             },
           }}
         />

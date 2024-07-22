@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // Import React and necessary hooks
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -7,99 +7,131 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
-  Image, // Import Image component
-} from "react-native"; // Import necessary React Native components
-import { Button, TextInput } from "react-native-paper"; // Import Button and TextInput from react-native-paper
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage for storing and retrieving data
-import { useNavigate } from "react-router-native"; // Import useNavigate for navigation
+  Image,
+} from "react-native";
+import { Button, TextInput } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigate, useLocation } from "react-router-native";
 
 const ChatView = () => {
-  const [text, setText] = useState(""); // State to hold the input text
-  const [messages, setMessages] = useState([]); // State to hold the list of messages
-  const [token, setToken] = useState(""); // State to hold the JWT token
-  const [conversationId, setConversationId] = useState(null); // State to hold the current conversation ID
-  const navigate = useNavigate(); // Hook for navigation
+  const [text, setText] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [token, setToken] = useState("");
+  const [conversationId, setConversationId] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // useEffect to load the token from AsyncStorage when the component mounts
   useEffect(() => {
-    const loadToken = async () => {
+    const loadTokenAndConversation = async () => {
       try {
-        const savedToken = await AsyncStorage.getItem("userToken"); // Retrieve token from AsyncStorage
+        const savedToken = await AsyncStorage.getItem("userToken");
         if (savedToken) {
-          setToken(savedToken); // Set the token state
-          fetchConversations(savedToken); // Fetch conversations with the retrieved token
+          setToken(savedToken);
+          const convId = location.state?.conversationId;
+          if (convId) {
+            setConversationId(convId);
+            fetchConversationMessages(savedToken, convId);
+          } else {
+            fetchConversations(savedToken);
+          }
         } else {
-          console.error("No token found"); // Log error if no token is found
+          console.error("No token found");
         }
       } catch (error) {
-        console.error("Error retrieving token:", error); // Log error if there's an issue retrieving the token
+        console.error("Error retrieving token:", error);
       }
     };
-    loadToken(); // Call loadToken function
-  }, []);
+    loadTokenAndConversation();
+  }, [location.state]);
 
-  // Function to fetch conversations from the backend
   const fetchConversations = async (token) => {
     try {
       const response = await fetch("http://10.0.2.2:5001/conversations", {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`, // Include token in headers for authentication
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.status === 401) {
-        console.error("Unauthorized access. Invalid token."); // Log error if unauthorized
+        console.error("Unauthorized access. Invalid token.");
         return;
       }
 
       const data = await response.json();
       if (data.length > 0) {
-        const firstConversation = data[0]; // Get the first conversation
-        setConversationId(firstConversation._id); // Set the conversation ID
+        const firstConversation = data[0];
+        setConversationId(firstConversation._id);
         setMessages(
           firstConversation.messages.map((msg) => ({
             text: msg.text,
             type: msg.sender,
           }))
-        ); // Set messages state with the messages from the conversation
+        );
       } else {
-        createNewConversation(token); // Create a new conversation if none exist
+        createNewConversation(token);
       }
     } catch (error) {
-      console.error("Error fetching conversations:", error); // Log error if there's an issue fetching conversations
+      console.error("Error fetching conversations:", error);
     }
   };
 
-  // Function to create a new conversation
+  const fetchConversationMessages = async (token, convId) => {
+    try {
+      const response = await fetch(
+        `http://10.0.2.2:5001/conversations/${convId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 401) {
+        console.error("Unauthorized access. Invalid token.");
+        return;
+      }
+
+      const conversation = await response.json();
+      setMessages(
+        conversation.messages.map((msg) => ({
+          text: msg.text,
+          type: msg.sender,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching conversation messages:", error);
+    }
+  };
+
   const createNewConversation = async (token) => {
     try {
       const response = await fetch("http://10.0.2.2:5001/conversations", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // Include token in headers for authentication
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.status === 401) {
-        console.error("Unauthorized access. Invalid token."); // Log error if unauthorized
+        console.error("Unauthorized access. Invalid token.");
         return;
       }
 
       const newConversation = await response.json();
-      setConversationId(newConversation._id); // Set the new conversation ID
-      setMessages([]); // Clear existing messages
+      setConversationId(newConversation._id);
+      setMessages([]);
     } catch (error) {
-      console.error("Error creating new conversation:", error); // Log error if there's an issue creating a new conversation
+      console.error("Error creating new conversation:", error);
     }
   };
 
-  // Function to handle sending a message
   const handleSend = async () => {
     if (text.trim()) {
-      const newMessage = { text, type: "user" }; // Create a new message object
-      setMessages([...messages, newMessage]); // Add the new message to the messages state
-      setText(""); // Clear the input text
+      const newMessage = { text, type: "user" };
+      setMessages([...messages, newMessage]);
+      setText("");
 
       try {
         const response = await fetch(
@@ -108,23 +140,22 @@ const ChatView = () => {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // Include token in headers for authentication
+              Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ text, sender: "user" }), // Send message text and sender as the request body
+            body: JSON.stringify({ text, sender: "user" }),
           }
         );
 
         const responseText = await response.text();
-        console.log("Raw response:", responseText); // Log the raw response
+        console.log("Raw response:", responseText);
 
         if (response.status === 401) {
-          console.error("Unauthorized access. Invalid token."); // Log error if unauthorized
+          console.error("Unauthorized access. Invalid token.");
           return;
         }
-        // chat response
         handleChatResponse(responseText);
       } catch (error) {
-        console.error("Error:", error); // Log error if there's an issue sending the message
+        console.error("Error:", error);
       }
     }
   };
@@ -196,11 +227,11 @@ const ChatView = () => {
                 message.type === "user"
                   ? styles.userMessageWrapper
                   : styles.botMessageWrapper,
-              ]} // Wrapper for image and message
+              ]}
             >
               {message.type === "bot" && (
                 <Image
-                  source={require("../assets/bot.png")} // Load image from local assets
+                  source={require("../assets/bot.png")}
                   style={styles.botImage}
                 />
               )}
@@ -225,7 +256,7 @@ const ChatView = () => {
             style={styles.input}
             theme={{
               colors: {
-                primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+                primary: "rgb(23, 75, 160)",
               },
             }}
           />
@@ -270,15 +301,15 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   messageWrapper: {
-    flexDirection: "row", // Align image and message horizontally
-    alignItems: "center", // Center items vertically
-    marginBottom: 10, // Add space between messages
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
   },
   userMessageWrapper: {
-    justifyContent: "flex-end", // Align user's message to the right
+    justifyContent: "flex-end",
   },
   botMessageWrapper: {
-    justifyContent: "flex-start", // Align bot's message to the left
+    justifyContent: "flex-start",
   },
   inputContainer: {
     flexDirection: "row",
@@ -303,9 +334,9 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
   },
   botMessageWrapper: {
-    flexDirection: "row", // Align image and message horizontally
-    alignItems: "flex-start", // Align items vertically to the top
-    marginBottom: 10, // Add space between messages
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
   },
   botMessage: {
     alignSelf: "flex-start",
@@ -319,13 +350,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
-    //marginLeft: 5, // Add space between image and message bubble
   },
   botImage: {
     width: 35,
     height: 35,
-    marginRight: 10, // Space between image and message
-    alignSelf: "flex-start", // Align image to the top
+    marginRight: 10,
+    alignSelf: "flex-start",
   },
   messageText: {
     fontSize: 16,

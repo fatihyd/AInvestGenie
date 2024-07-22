@@ -88,6 +88,7 @@ const ChatView = () => {
 
       const newConversation = await response.json();
       setConversationId(newConversation._id); // Set the new conversation ID
+      setMessages([]); // Clear existing messages
     } catch (error) {
       console.error("Error creating new conversation:", error); // Log error if there's an issue creating a new conversation
     }

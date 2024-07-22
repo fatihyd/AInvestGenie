@@ -4,4 +4,6 @@
 
 => Eski repodaki güzel küçük özellikler (İlk bot mesajı, text to speech, copy to clipboard)
 
-=> Backend deploy
+=> Conversation silme özelliği / Menüde butonu
+
+=> Backend deployment

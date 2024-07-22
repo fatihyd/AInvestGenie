@@ -83,7 +83,7 @@ const MenuView = () => {
               <Text style={styles.conversationTitle}>
                 {conversation.messages.length > 0
                   ? conversation.messages[0].text
-                  : "No Messages"}
+                  : "Mesaj yok"}
               </Text>
             </TouchableOpacity>
           ))}

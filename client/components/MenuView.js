@@ -74,16 +74,14 @@ const MenuView = () => {
 
       <View style={styles.container}>
         <ScrollView>
-          {conversations.map((conversation) => (
+          {conversations.map((conversation, index) => (
             <TouchableOpacity
               key={conversation._id}
               style={styles.conversationItem}
               onPress={() => handleConversationClick(conversation._id)}
             >
               <Text style={styles.conversationTitle}>
-                {conversation.messages.length > 0
-                  ? conversation.messages[0].text
-                  : "Mesaj yok"}
+                Chat #{conversations.length - index}
               </Text>
             </TouchableOpacity>
           ))}

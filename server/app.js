@@ -6,6 +6,7 @@ const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const conversationRoutes = require("./routes/conversationRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const openaiRoutes = require("./routes/openaiRoutes");
 
 const app = express();
 
@@ -26,6 +27,7 @@ mongoose
 app.use("/users", userRoutes);
 app.use("/conversations", conversationRoutes);
 app.use("/messages", messageRoutes);
+app.use("/openai", openaiRoutes);
 
 // Start the server
 const PORT = 5001;

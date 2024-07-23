@@ -1,8 +1,8 @@
-=> RAG
-
 => Görüntü muhabbeti
 
-=> Eski repodaki güzel küçük özellikler (İlk bot mesajı, text to speech, copy to clipboard)
+=> text to speech
+=> copy to clipboard
+=> typing...
 
 => Conversation silme özelliği / Menüde butonu
 

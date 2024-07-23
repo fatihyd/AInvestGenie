@@ -134,7 +134,8 @@ const ChatView = () => {
       setText("");
 
       try {
-        const response = await fetch(
+        // Save the user's message to the database
+        const userMessageResponse = await fetch(
           `http://10.0.2.2:5001/messages/${conversationId}`,
           {
             method: "POST",
@@ -146,6 +147,21 @@ const ChatView = () => {
           }
         );
 
+        if (userMessageResponse.status === 401) {
+          console.error("Unauthorized access. Invalid token.");
+          return;
+        }
+
+        // Fetch response from the OpenAI endpoint
+        const response = await fetch(`http://10.0.2.2:5001/openai/query`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ message: text }),
+        });
+
         const responseText = await response.text();
         console.log("Raw response:", responseText);
 
@@ -153,6 +169,7 @@ const ChatView = () => {
           console.error("Unauthorized access. Invalid token.");
           return;
         }
+
         handleChatResponse(responseText);
       } catch (error) {
         console.error("Error:", error);
@@ -162,8 +179,8 @@ const ChatView = () => {
 
   const handleChatResponse = async (responseText) => {
     const data = JSON.parse(responseText);
-    if (data.text) {
-      const responseMessage = { text: data.text, type: "bot" };
+    if (data.response) {
+      const responseMessage = { text: data.response, type: "bot" };
       setMessages((prevMessages) => [...prevMessages, responseMessage]);
 
       try {
@@ -176,7 +193,7 @@ const ChatView = () => {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ text: data.text, sender: "bot" }),
+            body: JSON.stringify({ text: data.response, sender: "bot" }),
           }
         );
 

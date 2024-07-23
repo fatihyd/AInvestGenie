@@ -121,7 +121,30 @@ const ChatView = () => {
 
       const newConversation = await response.json();
       setConversationId(newConversation._id);
-      setMessages([]);
+
+      // Fetch the messages of the new conversation
+      const messagesResponse = await fetch(
+        `http://10.0.2.2:5001/conversations/${newConversation._id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (messagesResponse.status === 401) {
+        console.error("Unauthorized access. Invalid token.");
+        return;
+      }
+
+      const conversation = await messagesResponse.json();
+      setMessages(
+        conversation.messages.map((msg) => ({
+          text: msg.text,
+          type: msg.sender,
+        }))
+      );
     } catch (error) {
       console.error("Error creating new conversation:", error);
     }

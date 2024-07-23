@@ -7,3 +7,15 @@
 => Conversation silme özelliği / Menüde butonu
 
 => Backend deployment
+
+...
+
+...
+
+...
+
+ölmezsek
+
+...
+
+=> WEB

@@ -11,13 +11,16 @@ const SignUpView = () => {
 
   const handleSignUp = async () => {
     try {
-      const response = await fetch("http://10.0.2.2:5001/users/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fullName, email, password }),
-      });
+      const response = await fetch(
+        "https://ainvestgenieserver.adaptable.app/users/signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fullName, email, password }),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
         navigate("/");

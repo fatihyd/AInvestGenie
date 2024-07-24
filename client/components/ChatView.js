@@ -46,12 +46,15 @@ const ChatView = () => {
 
   const fetchConversations = async (token) => {
     try {
-      const response = await fetch("http://10.0.2.2:5001/conversations", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://ainvestgenieserver.adaptable.app/conversations",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 401) {
         console.error("Unauthorized access. Invalid token.");
@@ -79,7 +82,7 @@ const ChatView = () => {
   const fetchConversationMessages = async (token, convId) => {
     try {
       const response = await fetch(
-        `http://10.0.2.2:5001/conversations/${convId}`,
+        `https://ainvestgenieserver.adaptable.app/conversations/${convId}`,
         {
           method: "GET",
           headers: {
@@ -107,12 +110,15 @@ const ChatView = () => {
 
   const createNewConversation = async (token) => {
     try {
-      const response = await fetch("http://10.0.2.2:5001/conversations", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://ainvestgenieserver.adaptable.app/conversations",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 401) {
         console.error("Unauthorized access. Invalid token.");
@@ -124,7 +130,7 @@ const ChatView = () => {
 
       // Fetch the messages of the new conversation
       const messagesResponse = await fetch(
-        `http://10.0.2.2:5001/conversations/${newConversation._id}`,
+        `https://ainvestgenieserver.adaptable.app/conversations/${newConversation._id}`,
         {
           method: "GET",
           headers: {
@@ -159,7 +165,7 @@ const ChatView = () => {
       try {
         // Save the user's message to the database
         const userMessageResponse = await fetch(
-          `http://10.0.2.2:5001/messages/${conversationId}`,
+          `https://ainvestgenieserver.adaptable.app/messages/${conversationId}`,
           {
             method: "POST",
             headers: {
@@ -176,14 +182,17 @@ const ChatView = () => {
         }
 
         // Fetch response from the OpenAI endpoint
-        const response = await fetch(`http://10.0.2.2:5001/openai/query`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ message: text }),
-        });
+        const response = await fetch(
+          `https://ainvestgenieserver.adaptable.app/openai/query`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ message: text }),
+          }
+        );
 
         const responseText = await response.text();
         console.log("Raw response:", responseText);
@@ -209,7 +218,7 @@ const ChatView = () => {
       try {
         console.log("Attempting to save bot response to database");
         const response = await fetch(
-          `http://10.0.2.2:5001/messages/${conversationId}`,
+          `https://ainvestgenieserver.adaptable.app/messages/${conversationId}`,
           {
             method: "POST",
             headers: {

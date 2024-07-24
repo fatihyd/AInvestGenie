@@ -11,13 +11,16 @@ const LoginView = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://10.0.2.2:5001/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        "https://ainvestgenieserver.adaptable.app/users/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        }
+      );
       const data = await response.json();
       if (response.ok) {
         await AsyncStorage.setItem("userToken", data.token);
@@ -33,12 +36,15 @@ const LoginView = () => {
 
   const createNewConversation = async (token) => {
     try {
-      const response = await fetch("http://10.0.2.2:5001/conversations", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://ainvestgenieserver.adaptable.app/conversations",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.status === 401) {
         console.error("Unauthorized access. Invalid token.");

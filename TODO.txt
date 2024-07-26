@@ -1,12 +1,4 @@
-=> Görüntü muhabbeti
-
-=> text to speech
-=> copy to clipboard
-=> typing...
-
 => Conversation silme özelliği / Menüde butonu
-
-=> Backend deployment
 
 ...
 

@@ -354,7 +354,7 @@ const ChatView = () => {
             <View style={styles.modalContent}>
               <Text style={styles.modalText}>
                 Bu uygulamadaki yatırım tavsiyeleri kesinlik içermemektedir.
-                Yatırım kararlarınızı alırken, piyasa koşulları ve riskleri
+                Yatırım kararlarınızı alırken, piyasa koşullarını ve risklerini
                 dikkatlice değerlendirmeniz önemlidir. Alacağınız kararların
                 sorumluluğu tamamen size aittir.
               </Text>

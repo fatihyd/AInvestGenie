@@ -12,17 +12,20 @@ import {
 import { Button, TextInput } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigate, useLocation } from "react-router-native";
+import Modal from "react-native-modal";
+import { LinearGradient } from "expo-linear-gradient";
 
 const ChatView = () => {
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [token, setToken] = useState("");
   const [conversationId, setConversationId] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false); // Default to false
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    const loadTokenAndConversation = async () => {
+    const initialize = async () => {
       try {
         const savedToken = await AsyncStorage.getItem("userToken");
         if (savedToken) {
@@ -34,6 +37,10 @@ const ChatView = () => {
           } else {
             fetchConversations(savedToken);
           }
+          const seenModal = await AsyncStorage.getItem("seenModal");
+          if (!seenModal) {
+            setModalVisible(true); // Only show modal if it hasn't been seen
+          }
         } else {
           console.error("No token found");
         }
@@ -41,7 +48,7 @@ const ChatView = () => {
         console.error("Error retrieving token:", error);
       }
     };
-    loadTokenAndConversation();
+    initialize();
   }, [location.state]);
 
   const fetchConversations = async (token) => {
@@ -242,6 +249,11 @@ const ChatView = () => {
     }
   };
 
+  const handleConfirm = async () => {
+    setModalVisible(false);
+    await AsyncStorage.setItem("seenModal", "true");
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -319,6 +331,36 @@ const ChatView = () => {
           </Button>
         </View>
       </KeyboardAvoidingView>
+      <Modal
+        isVisible={modalVisible}
+        backdropColor="rgba(0, 0, 0, 0.5)"
+        backdropOpacity={1}
+        useNativeDriver={true}
+        style={styles.modal}
+      >
+        <LinearGradient
+          colors={["rgba(23, 75, 160, 0.3)", "rgba(23, 75, 160, 0.8)"]}
+          style={styles.gradient}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>
+                Bu uygulamadaki yatırım tavsiyeleri kesinlik içermemektedir.
+                Yatırım kararlarınızı alırken, piyasa koşulları ve riskleri
+                dikkatlice değerlendirmeniz önemlidir. Alacağınız kararların
+                sorumluluğu tamamen size aittir.
+              </Text>
+              <Button
+                mode="contained"
+                onPress={handleConfirm}
+                style={styles.modalButton}
+              >
+                Anladım
+              </Button>
+            </View>
+          </View>
+        </LinearGradient>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -408,6 +450,35 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
+  },
+  // Modal styles
+  modal: {
+    justifyContent: "center",
+    margin: 0,
+  },
+  gradient: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  modalContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: "rgb(23, 75, 160)",
   },
 });
 

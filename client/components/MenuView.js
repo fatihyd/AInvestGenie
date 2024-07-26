@@ -52,6 +52,7 @@ const MenuView = () => {
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem("userToken");
+      await AsyncStorage.removeItem("seenModal");
       navigate("/");
     } catch (error) {
       console.error("Logout Error:", error);

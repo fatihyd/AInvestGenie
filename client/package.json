@@ -16,9 +16,11 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.73.6",
+    "react-native-modal": "^13.0.1",
     "react-native-paper": "^5.12.3",
     "react-native-web": "~0.19.6",
-    "react-router-native": "^6.25.1"
+    "react-router-native": "^6.25.1",
+    "expo-linear-gradient": "~13.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

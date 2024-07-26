@@ -20,7 +20,8 @@ const ChatView = () => {
   const [messages, setMessages] = useState([]);
   const [token, setToken] = useState("");
   const [conversationId, setConversationId] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false); // Default to false
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,7 +40,7 @@ const ChatView = () => {
           }
           const seenModal = await AsyncStorage.getItem("seenModal");
           if (!seenModal) {
-            setModalVisible(true); // Only show modal if it hasn't been seen
+            setModalVisible(true);
           }
         } else {
           console.error("No token found");
@@ -135,7 +136,6 @@ const ChatView = () => {
       const newConversation = await response.json();
       setConversationId(newConversation._id);
 
-      // Fetch the messages of the new conversation
       const messagesResponse = await fetch(
         `https://ainvestgenieserver.adaptable.app/conversations/${newConversation._id}`,
         {
@@ -168,9 +168,9 @@ const ChatView = () => {
       const newMessage = { text, type: "user" };
       setMessages([...messages, newMessage]);
       setText("");
+      setIsTyping(true); // Show typing indicator
 
       try {
-        // Save the user's message to the database
         const userMessageResponse = await fetch(
           `https://ainvestgenieserver.adaptable.app/messages/${conversationId}`,
           {
@@ -188,7 +188,6 @@ const ChatView = () => {
           return;
         }
 
-        // Fetch response from the OpenAI endpoint
         const response = await fetch(
           `https://ainvestgenieserver.adaptable.app/openai/query`,
           {
@@ -221,6 +220,7 @@ const ChatView = () => {
     if (data.response) {
       const responseMessage = { text: data.response, type: "bot" };
       setMessages((prevMessages) => [...prevMessages, responseMessage]);
+      setIsTyping(false); // Hide typing indicator
 
       try {
         console.log("Attempting to save bot response to database");
@@ -307,6 +307,14 @@ const ChatView = () => {
               </View>
             </View>
           ))}
+          {isTyping && (
+            <View style={styles.typingIndicator}>
+              <Image
+                source={require("../assets/typing.gif")}
+                style={styles.typingGif}
+              />
+            </View>
+          )}
         </ScrollView>
         <View style={styles.inputContainer}>
           <TextInput
@@ -383,7 +391,6 @@ const styles = StyleSheet.create({
   menuButton: {
     margin: 10,
   },
-
   newChatButton: {
     margin: 10,
   },
@@ -450,6 +457,18 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
+  },
+  // Typing indicator styles
+  typingIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    padding: 10,
+  },
+  typingGif: {
+    width: 80,
+    height: 90,
+    marginLeft: -10,
   },
   // Modal styles
   modal: {

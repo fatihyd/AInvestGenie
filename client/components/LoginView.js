@@ -23,12 +23,12 @@ const LoginView = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false); // New state for modal visibility
+  const [modalVisible, setModalVisible] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     setLoading(true);
-    setModalVisible(true); // Show modal when loading starts
+    setModalVisible(true);
     try {
       const response = await fetch(
         "https://ainvestgenieserver.adaptable.app/users/login",
@@ -43,19 +43,20 @@ const LoginView = () => {
       const data = await response.json();
       if (response.ok) {
         await AsyncStorage.setItem("userToken", data.token);
+        await AsyncStorage.removeItem("seenModal");
         setLoading(false);
         setShowCheckmark(true);
         setTimeout(() => {
           createNewConversation(data.token);
-        }, 500); // Show checkmark for 2 seconds before navigating
+        }, 500);
       } else {
-        setModalVisible(false); // Hide modal if there's an error
+        setModalVisible(false);
         alert(data.message);
       }
     } catch (error) {
       console.error("Login Error:", error);
       alert("Error logging in");
-      setModalVisible(false); // Hide modal on error
+      setModalVisible(false);
     } finally {
       setLoading(false);
     }
@@ -79,11 +80,11 @@ const LoginView = () => {
       }
 
       const newConversation = await response.json();
-      setModalVisible(false); // Hide modal after creating a new conversation
+      setModalVisible(false);
       navigate("/chat", { state: { conversationId: newConversation._id } });
     } catch (error) {
       console.error("Error creating new conversation:", error);
-      setModalVisible(false); // Hide modal on error
+      setModalVisible(false);
     }
   };
 
@@ -132,7 +133,7 @@ const LoginView = () => {
 
         <Portal>
           <Modal
-            visible={modalVisible} // Use new state to control modal visibility
+            visible={modalVisible}
             dismissable={false}
             contentContainerStyle={styles.modal}
           >

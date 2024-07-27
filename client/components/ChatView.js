@@ -170,7 +170,7 @@ const ChatView = () => {
       const newMessage = { text, type: "user" };
       setMessages([...messages, newMessage]);
       setText("");
-      setIsTyping(true); // Show typing indicator
+      setIsTyping(true);
 
       try {
         const userMessageResponse = await fetch(
@@ -222,7 +222,7 @@ const ChatView = () => {
     if (data.response) {
       const responseMessage = { text: data.response, type: "bot" };
       setMessages((prevMessages) => [...prevMessages, responseMessage]);
-      setIsTyping(false); // Hide typing indicator
+      setIsTyping(false);
 
       try {
         console.log("Attempting to save bot response to database");

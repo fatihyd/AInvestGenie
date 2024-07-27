@@ -107,6 +107,7 @@ const LoginView = () => {
               primary: "rgb(23, 75, 160)",
             },
           }}
+          autoCapitalize="none"
         />
         <TextInput
           label="Şifre"
@@ -119,6 +120,7 @@ const LoginView = () => {
               primary: "rgb(23, 75, 160)",
             },
           }}
+          autoCapitalize="none"
         />
         <Button onPress={handleLogin} mode="contained" style={styles.button}>
           Giriş Yap

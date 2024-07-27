@@ -92,6 +92,7 @@ const SignUpView = () => {
               primary: "rgb(23, 75, 160)",
             },
           }}
+          autoCapitalize="none"
         />
         <TextInput
           label="Şifre"
@@ -104,6 +105,7 @@ const SignUpView = () => {
             },
           }}
           secureTextEntry
+          autoCapitalize="none"
         />
         <Button onPress={handleSignUp} mode="contained" style={styles.button}>
           Üye Ol

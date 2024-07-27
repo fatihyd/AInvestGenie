@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -255,121 +257,123 @@ const ChatView = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Button
-          icon="menu"
-          mode="text"
-          onPress={() => navigate("/menu")}
-          style={styles.menuButton}
-          labelStyle={styles.buttonTexts}
-        >
-          Menü
-        </Button>
-        <Button
-          icon="chat"
-          onPress={() => createNewConversation(token)}
-          style={styles.newChatButton}
-          labelStyle={styles.buttonTexts}
-        >
-          Yeni Sohbet
-        </Button>
-      </View>
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView style={styles.messageContainer}>
-          {messages.map((message, index) => (
-            <View
-              key={index}
-              style={[
-                styles.messageWrapper,
-                message.type === "user"
-                  ? styles.userMessageWrapper
-                  : styles.botMessageWrapper,
-              ]}
-            >
-              {message.type === "bot" && (
-                <Image
-                  source={require("../assets/bot.png")}
-                  style={styles.botImage}
-                />
-              )}
-              <View
-                style={
-                  message.type === "user"
-                    ? styles.userMessage
-                    : styles.botMessage
-                }
-              >
-                <Text style={styles.messageText}>{message.text}</Text>
-              </View>
-            </View>
-          ))}
-          {isTyping && (
-            <View style={styles.typingIndicator}>
-              <Image
-                source={require("../assets/typing.gif")}
-                style={styles.typingGif}
-              />
-            </View>
-          )}
-        </ScrollView>
-        <View style={styles.inputContainer}>
-          <TextInput
-            mode="outlined"
-            label="Mesajınızı buraya yazın..."
-            value={text}
-            onChangeText={setText}
-            style={styles.input}
-            theme={{
-              colors: {
-                primary: "rgb(23, 75, 160)",
-              },
-            }}
-          />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
           <Button
-            icon="send"
-            onPress={handleSend}
-            style={styles.sendButton}
+            icon="menu"
+            mode="text"
+            onPress={() => navigate("/menu")}
+            style={styles.menuButton}
             labelStyle={styles.buttonTexts}
           >
-            Gönder
+            Menü
+          </Button>
+          <Button
+            icon="chat"
+            onPress={() => createNewConversation(token)}
+            style={styles.newChatButton}
+            labelStyle={styles.buttonTexts}
+          >
+            Yeni Sohbet
           </Button>
         </View>
-      </KeyboardAvoidingView>
-      <Modal
-        isVisible={modalVisible}
-        backdropColor="rgba(0, 0, 0, 0.5)"
-        backdropOpacity={1}
-        useNativeDriver={true}
-        style={styles.modal}
-      >
-        <LinearGradient
-          colors={["rgba(23, 75, 160, 0.3)", "rgba(23, 75, 160, 0.8)"]}
-          style={styles.gradient}
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>
-                Bu uygulamadaki yatırım tavsiyeleri kesinlik içermemektedir.
-                Yatırım kararlarınızı alırken, piyasa koşullarını ve risklerini
-                dikkatlice değerlendirmeniz önemlidir. Alacağınız kararların
-                sorumluluğu tamamen size aittir.
-              </Text>
-              <Button
-                mode="contained"
-                onPress={handleConfirm}
-                style={styles.modalButton}
+          <ScrollView style={styles.messageContainer}>
+            {messages.map((message, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.messageWrapper,
+                  message.type === "user"
+                    ? styles.userMessageWrapper
+                    : styles.botMessageWrapper,
+                ]}
               >
-                Anladım
-              </Button>
-            </View>
+                {message.type === "bot" && (
+                  <Image
+                    source={require("../assets/bot.png")}
+                    style={styles.botImage}
+                  />
+                )}
+                <View
+                  style={
+                    message.type === "user"
+                      ? styles.userMessage
+                      : styles.botMessage
+                  }
+                >
+                  <Text style={styles.messageText}>{message.text}</Text>
+                </View>
+              </View>
+            ))}
+            {isTyping && (
+              <View style={styles.typingIndicator}>
+                <Image
+                  source={require("../assets/typing.gif")}
+                  style={styles.typingGif}
+                />
+              </View>
+            )}
+          </ScrollView>
+          <View style={styles.inputContainer}>
+            <TextInput
+              mode="outlined"
+              label="Mesajınızı buraya yazın..."
+              value={text}
+              onChangeText={setText}
+              style={styles.input}
+              theme={{
+                colors: {
+                  primary: "rgb(23, 75, 160)",
+                },
+              }}
+            />
+            <Button
+              icon="send"
+              onPress={handleSend}
+              style={styles.sendButton}
+              labelStyle={styles.buttonTexts}
+            >
+              Gönder
+            </Button>
           </View>
-        </LinearGradient>
-      </Modal>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+        <Modal
+          isVisible={modalVisible}
+          backdropColor="rgba(0, 0, 0, 0.5)"
+          backdropOpacity={1}
+          useNativeDriver={true}
+          style={styles.modal}
+        >
+          <LinearGradient
+            colors={["rgba(23, 75, 160, 0.3)", "rgba(23, 75, 160, 0.8)"]}
+            style={styles.gradient}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalText}>
+                  Bu uygulamadaki yatırım tavsiyeleri kesinlik içermemektedir.
+                  Yatırım kararlarınızı alırken, piyasa koşullarını ve
+                  risklerini dikkatlice değerlendirmeniz önemlidir. Alacağınız
+                  kararların sorumluluğu tamamen size aittir.
+                </Text>
+                <Button
+                  mode="contained"
+                  onPress={handleConfirm}
+                  style={styles.modalButton}
+                >
+                  Anladım
+                </Button>
+              </View>
+            </View>
+          </LinearGradient>
+        </Modal>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

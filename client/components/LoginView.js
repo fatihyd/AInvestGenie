@@ -4,6 +4,8 @@ import {
   View,
   StyleSheet,
   ActivityIndicator,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import {
   Button,
@@ -86,69 +88,71 @@ const LoginView = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <Button
-        icon="arrow-left"
-        mode="text"
-        onPress={() => navigate("/")}
-        style={styles.backButton}
-        labelStyle={styles.backButtonText}
-      >
-        Ana Sayfa
-      </Button>
-      <View style={styles.container}>
-        <TextInput
-          label="E-posta"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          theme={{
-            colors: {
-              primary: "rgb(23, 75, 160)",
-            },
-          }}
-          autoCapitalize="none"
-        />
-        <TextInput
-          label="Şifre"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-          theme={{
-            colors: {
-              primary: "rgb(23, 75, 160)",
-            },
-          }}
-          autoCapitalize="none"
-        />
-        <Button onPress={handleLogin} mode="contained" style={styles.button}>
-          Giriş Yap
-        </Button>
-      </View>
-
-      <Portal>
-        <Modal
-          visible={modalVisible} // Use new state to control modal visibility
-          dismissable={false}
-          contentContainerStyle={styles.modal}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView style={styles.safeArea}>
+        <Button
+          icon="arrow-left"
+          mode="text"
+          onPress={() => navigate("/")}
+          style={styles.backButton}
+          labelStyle={styles.backButtonText}
         >
-          {showCheckmark ? (
-            <>
-              <IconButton
-                icon="check-circle"
-                color="rgb(23, 75, 160)"
-                size={50}
-              />
-            </>
-          ) : (
-            <>
-              <ActivityIndicator size="large" color="rgb(23, 75, 160)" />
-            </>
-          )}
-        </Modal>
-      </Portal>
-    </SafeAreaView>
+          Ana Sayfa
+        </Button>
+        <View style={styles.container}>
+          <TextInput
+            label="E-posta"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            theme={{
+              colors: {
+                primary: "rgb(23, 75, 160)",
+              },
+            }}
+            autoCapitalize="none"
+          />
+          <TextInput
+            label="Şifre"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            style={styles.input}
+            theme={{
+              colors: {
+                primary: "rgb(23, 75, 160)",
+              },
+            }}
+            autoCapitalize="none"
+          />
+          <Button onPress={handleLogin} mode="contained" style={styles.button}>
+            Giriş Yap
+          </Button>
+        </View>
+
+        <Portal>
+          <Modal
+            visible={modalVisible} // Use new state to control modal visibility
+            dismissable={false}
+            contentContainerStyle={styles.modal}
+          >
+            {showCheckmark ? (
+              <>
+                <IconButton
+                  icon="check-circle"
+                  color="rgb(23, 75, 160)"
+                  size={50}
+                />
+              </>
+            ) : (
+              <>
+                <ActivityIndicator size="large" color="rgb(23, 75, 160)" />
+              </>
+            )}
+          </Modal>
+        </Portal>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 

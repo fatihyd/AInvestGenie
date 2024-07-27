@@ -21,10 +21,12 @@ const SignUpView = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false); // New state for modal visibility
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
     setLoading(true);
+    setModalVisible(true); // Show modal when loading starts
     try {
       const response = await fetch(
         "https://ainvestgenieserver.adaptable.app/users/signup",
@@ -38,16 +40,20 @@ const SignUpView = () => {
       );
       const data = await response.json();
       if (response.ok) {
+        setLoading(false);
         setShowCheckmark(true);
         setTimeout(() => {
+          setModalVisible(false); // Hide modal after showing checkmark
           navigate("/");
-        }, 1000); // Show checkmark for 1 second before navigating
+        }, 500); // Show checkmark for 2 seconds before navigating
       } else {
+        setModalVisible(false); // Hide modal if there's an error
         alert(data.message);
       }
     } catch (error) {
       console.error("Signup Error:", error);
       alert("Error signing up");
+      setModalVisible(false); // Hide modal on error
     } finally {
       setLoading(false);
     }
@@ -106,7 +112,7 @@ const SignUpView = () => {
 
       <Portal>
         <Modal
-          visible={loading}
+          visible={modalVisible} // Use new state to control modal visibility
           dismissable={false}
           contentContainerStyle={styles.modal}
         >

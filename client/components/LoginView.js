@@ -21,10 +21,12 @@ const LoginView = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false); // New state for modal visibility
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     setLoading(true);
+    setModalVisible(true); // Show modal when loading starts
     try {
       const response = await fetch(
         "https://ainvestgenieserver.adaptable.app/users/login",
@@ -39,16 +41,19 @@ const LoginView = () => {
       const data = await response.json();
       if (response.ok) {
         await AsyncStorage.setItem("userToken", data.token);
+        setLoading(false);
         setShowCheckmark(true);
         setTimeout(() => {
           createNewConversation(data.token);
-        }, 1000); // Show checkmark for 1 second before navigating
+        }, 500); // Show checkmark for 2 seconds before navigating
       } else {
+        setModalVisible(false); // Hide modal if there's an error
         alert(data.message);
       }
     } catch (error) {
       console.error("Login Error:", error);
       alert("Error logging in");
+      setModalVisible(false); // Hide modal on error
     } finally {
       setLoading(false);
     }
@@ -72,9 +77,11 @@ const LoginView = () => {
       }
 
       const newConversation = await response.json();
+      setModalVisible(false); // Hide modal after creating a new conversation
       navigate("/chat", { state: { conversationId: newConversation._id } });
     } catch (error) {
       console.error("Error creating new conversation:", error);
+      setModalVisible(false); // Hide modal on error
     }
   };
 
@@ -120,7 +127,7 @@ const LoginView = () => {
 
       <Portal>
         <Modal
-          visible={loading}
+          visible={modalVisible} // Use new state to control modal visibility
           dismissable={false}
           contentContainerStyle={styles.modal}
         >

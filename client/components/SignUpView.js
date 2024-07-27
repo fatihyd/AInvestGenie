@@ -1,15 +1,30 @@
 import React, { useState } from "react";
-import { SafeAreaView, View, StyleSheet } from "react-native";
-import { Button, TextInput } from "react-native-paper";
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import {
+  Button,
+  TextInput,
+  Modal,
+  Portal,
+  Text,
+  IconButton,
+} from "react-native-paper";
 import { useNavigate } from "react-router-native";
 
 const SignUpView = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showCheckmark, setShowCheckmark] = useState(false);
   const navigate = useNavigate();
 
   const handleSignUp = async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         "https://ainvestgenieserver.adaptable.app/users/signup",
@@ -23,13 +38,18 @@ const SignUpView = () => {
       );
       const data = await response.json();
       if (response.ok) {
-        navigate("/");
+        setShowCheckmark(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 1000); // Show checkmark for 1 second before navigating
       } else {
         alert(data.message);
       }
     } catch (error) {
       console.error("Signup Error:", error);
       alert("Error signing up");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,7 +72,7 @@ const SignUpView = () => {
           style={styles.input}
           theme={{
             colors: {
-              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+              primary: "rgb(23, 75, 160)",
             },
           }}
         />
@@ -63,7 +83,7 @@ const SignUpView = () => {
           style={styles.input}
           theme={{
             colors: {
-              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+              primary: "rgb(23, 75, 160)",
             },
           }}
         />
@@ -74,7 +94,7 @@ const SignUpView = () => {
           style={styles.input}
           theme={{
             colors: {
-              primary: "rgb(23, 75, 160)", // Change this to your desired focus color
+              primary: "rgb(23, 75, 160)",
             },
           }}
           secureTextEntry
@@ -83,6 +103,28 @@ const SignUpView = () => {
           Üye Ol
         </Button>
       </View>
+
+      <Portal>
+        <Modal
+          visible={loading}
+          dismissable={false}
+          contentContainerStyle={styles.modal}
+        >
+          {showCheckmark ? (
+            <>
+              <IconButton
+                icon="check-circle"
+                color="rgb(23, 75, 160)"
+                size={50}
+              />
+            </>
+          ) : (
+            <>
+              <ActivityIndicator size="large" color="rgb(23, 75, 160)" />
+            </>
+          )}
+        </Modal>
+      </Portal>
     </SafeAreaView>
   );
 };
@@ -112,6 +154,16 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 16,
     backgroundColor: "rgb(23, 75, 160)",
+  },
+  modal: {
+    alignSelf: "center",
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalText: {
+    marginTop: 10,
   },
 });
 

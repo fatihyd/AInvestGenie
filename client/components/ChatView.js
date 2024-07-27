@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   SafeAreaView,
   View,
@@ -26,6 +26,7 @@ const ChatView = () => {
   const [isTyping, setIsTyping] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const scrollViewRef = useRef(); // Add this line
 
   useEffect(() => {
     const initialize = async () => {
@@ -53,6 +54,12 @@ const ChatView = () => {
     };
     initialize();
   }, [location.state]);
+
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]); // Add this useEffect to scroll to bottom when messages change
 
   const fetchConversations = async (token) => {
     try {
@@ -167,6 +174,7 @@ const ChatView = () => {
 
   const handleSend = async () => {
     if (text.trim()) {
+      Keyboard.dismiss(); // Add this line to dismiss the keyboard
       const newMessage = { text, type: "user" };
       setMessages([...messages, newMessage]);
       setText("");
@@ -281,7 +289,10 @@ const ChatView = () => {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView style={styles.messageContainer}>
+        <ScrollView
+          style={styles.messageContainer}
+          ref={scrollViewRef} // Add this line
+        >
           {messages.map((message, index) => (
             <View
               key={index}

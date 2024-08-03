@@ -6,13 +6,12 @@ import requests
 import json
 import simplejson
 from datetime import datetime
-# !pip install schedule
 import schedule
 import time
 import os
 from pathlib import Path
-#import BlobStorage.BlobStorageYedek as blob
-#import Indexing.createOrUpdateIndex as create_index
+import BlobStorage.BlobStorageYedek as blob
+import Indexing.createOrUpdateIndex as create_index
 #import Indexing.createindex as create_index
 import pytz
 import re
@@ -47,6 +46,7 @@ def removeTimestamp(our_dict, ticker):
         to_json[title][key.strftime("%Y-%m-%d %H:%M:%S")] = our_dict[title][key]
     return to_json
 
+# Returns resulting json file of a given ticker
 def convertToJson(symbol, period, need_date = False, *start_end, interval='1h'):
   df = None
   if not need_date:
@@ -60,20 +60,22 @@ def convertToJson(symbol, period, need_date = False, *start_end, interval='1h'):
   to_json = removeTimestamp(our_json, symbol)
   return to_json
 
+# Non ascii characters caused formatting errors in jsons so it is replaced with format friendly ones
 def asciify(target):
    target = target.replace("\u0131", "i").replace("\u00dc", "U").replace("\u011f","g").replace("\u00e7", "c").replace("\u015f","s")
    target = target.replace("\u0130", "I").replace("\u00c7", "C").replace("\u00f6","o").replace("\u00fc", "u").replace("\u015e", "S")
    target = target.replace("\u00d6", "O")
    return target
-   
+
+# jsons are dumped both in home directory and BlobStorage/DataFiles
 def dumpToBlob(name, temp, data_folder):
-    
-    with open(data_folder / f'{name}.json', 'w') as f:
-        simplejson.dump(temp, f, ensure_ascii=True, indent=2, ignore_nan=True)  
-        f.close()
-    with open(f"{name}.json", 'w') as f:
-        simplejson.dump(temp, f, ensure_ascii=True, indent=2, ignore_nan=True)
-        f.close()
+  with open(data_folder / f'{name}.json', 'w') as f:
+    simplejson.dump(temp, f, ensure_ascii=True, indent=2, ignore_nan=True)  
+    f.close()
+  with open(f"{name}.json", 'w') as f:
+    simplejson.dump(temp, f, ensure_ascii=True, indent=2, ignore_nan=True)
+    f.close()
+
 
 def get_stocks(stock_list, name_list, data_folder, today,index, interval = '1h', is_crypto = False):
     limit = 0
@@ -183,15 +185,18 @@ def fetchAll():
     bist_names = list(tables[0]['Firma Adı'])
     bist_100 = [x + '.IS' for x in bist_list]
 
+    # FTSE 100 tickers
     tables=pd.read_html("https://en.wikipedia.org/wiki/FTSE_100_Index", match='Ticker')
     london_exc = list(tables[0]['Ticker'])
     london_exc = [x + ".L" for x in london_exc]
     london_name = list(tables[0]['Company'])
 
+    # Euro Stoxx 50
     tables=pd.read_html("https://en.wikipedia.org/wiki/EURO_STOXX_50", match='Ticker')
     stoxx = list(tables[0]['Ticker'])
     stoxx_name = list(tables[0]['Name'])
 
+    # Hang Seng tickers
     tables=pd.read_html("https://en.wikipedia.org/wiki/Hang_Seng_Index", match='Ticker')
     hk_tickers = list(tables[0]['Ticker'])
     hk_tickers = ["0"*(4-len(x[6::])) + x[6::] + ".HK" for x in hk_tickers]
@@ -212,16 +217,16 @@ def fetchAll():
 
     data_folder = Path("BlobStorage/DataFiles")
     
-    #get_stocks(sp_500, sp_500_names, data_folder,today, "S&P 500", interval='1h')
-    #get_stocks(bist_100,bist_names, data_folder,today, "BIST 100", interval='1h')
-    #get_stocks(cryptos,crypto_names, data_folder, today, "crypto", interval='1h', is_crypto=True)
-    #get_stocks(london_exc, london_name, data_folder, today, "FTSE 100", interval = '1h')
-    #get_stocks(stoxx,stoxx_name,data_folder, today, "Stoxx Europe 50", interval='1h')
-    #get_stocks(hk_tickers,hk_name, data_folder, today, "Hang Seng Index", interval='1h')
+    get_stocks(sp_500, sp_500_names, data_folder,today, "S&P 500", interval='1h')
+    get_stocks(bist_100,bist_names, data_folder,today, "BIST 100", interval='1h')
+    get_stocks(cryptos,crypto_names, data_folder, today, "crypto", interval='1h', is_crypto=True)
+    get_stocks(london_exc, london_name, data_folder, today, "FTSE 100", interval = '1h')
+    get_stocks(stoxx,stoxx_name,data_folder, today, "Stoxx Europe 50", interval='1h')
+    get_stocks(hk_tickers,hk_name, data_folder, today, "Hang Seng Index", interval='1h')
     getCurrency(data_folder,today_tr)
 
-    # index them all at the end
-    # create_index.main()
+  # index them all at the end
+    create_index.main()
     
 def fetch_schedule():
   
@@ -244,8 +249,8 @@ def fetch_schedule():
   #schedule.every().friday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
   
   #while True:
-  #    schedule.run_pending()
-  #    time.sleep(1)
+  #  schedule.run_pending()
+  #  time.sleep(1)
 
 fetch_schedule()
 fetchAll()

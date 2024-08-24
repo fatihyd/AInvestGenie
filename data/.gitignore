@@ -36,7 +36,8 @@
 ehthumbs.db
 Thumbs.db
 
-# Secrets
+# Secrets #
+###########
 .env
 
 # Downloaded files

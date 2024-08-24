@@ -1,9 +1,6 @@
 import yfinance as yf
 import pandas as pd
-from pandas import DataFrame, json_normalize
-import numpy as np
 import requests
-import json
 import simplejson
 from datetime import datetime
 import schedule
@@ -12,9 +9,9 @@ import os
 from pathlib import Path
 import BlobStorage.BlobStorageYedek as blob
 import Indexing.createOrUpdateIndex as create_index
-#import Indexing.createindex as create_index
 import pytz
 import re
+from bs4 import BeautifulSoup
 
 
 # Returns a pandas dataframe for specified ticker and start-end dates
@@ -76,8 +73,28 @@ def dumpToBlob(name, temp, data_folder):
     simplejson.dump(temp, f, ensure_ascii=True, indent=2, ignore_nan=True)
     f.close()
 
+def getTickerLists(ticker_link, suffix=""):
+  try:
+    response = requests.get(ticker_link)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    all_a = soup.find_all('a', attrs= {'class': 'title stock-code'})
+  except:
+    print("site access not possible")
+    return
+  
+  ticker_list = []
+  ticker_names = []
+  for a in all_a:
+    try:
+      name = yf.Ticker(a.text + suffix)
+      name = name.info['longName']
+      ticker_names.append(name)
+      ticker_list.append(a.text)
+    except:
+      print(f"{a.text} info not found, skipping")
+  return ticker_list, ticker_names
 
-def get_stocks(stock_list, name_list, data_folder, today,index, interval = '1h', is_crypto = False):
+def getStocks(stock_list, name_list, data_folder, today,index, interval = '1h', is_crypto = False):
     limit = 0
     for stock_tuple in zip(stock_list, name_list, strict=True):
       new_json = [{}]
@@ -143,7 +160,7 @@ def getCurrency(data_folder, today_tr):
     except Exception as e:
       print(e)
       continue
-  #blob.upload_batch()
+  blob.upload_batch()
       
 def getExchange(symbol):
    if ".IS" in symbol:
@@ -180,9 +197,8 @@ def fetchAll():
     sp_500_names = list(tables[0]['Security'])
     
     # get bist tickers
-    tables=pd.read_html("https://tr.wikipedia.org/wiki/Borsa_%C4%B0stanbul", match='Kod')
-    bist_list = list(tables[0]['Kod [9]'])
-    bist_names = list(tables[0]['Firma Adı'])
+    bist100_link = "https://www.getmidas.com/canli-borsa/xu100-bist-100-hisseleri"
+    bist_list,bist_names = getTickerLists(bist100_link, ".IS")
     bist_100 = [x + '.IS' for x in bist_list]
 
     # FTSE 100 tickers
@@ -202,30 +218,25 @@ def fetchAll():
     hk_tickers = ["0"*(4-len(x[6::])) + x[6::] + ".HK" for x in hk_tickers]
     hk_name = list(tables[0]['Name'])
     
-
-    cryptos = ['BTC-USD', 'ETH-USD', 'USDT-USD', 'BNB-USD', 'SOL-USD', 'USDC-USD', 'XRP-USD', 'TON-USD', 'DOGE-USD',
-                    'ADA-USD', 'TRX-USD', 'AVAX-USD', 'SHIB-USD', 'WBTC-USD', 'DOT-USD', 'LINK-USD', 'BCH-USD', 'NEAR-USD',
-                      'MATIC-USD', 'LTC-USD', 'DAI-USD', 'LEO-USD', 'PEPE-USD', 'UNI-USD', 'ICP-USD', 'KAS-USD', 'FET-USD',
-                        'ETC-USD', 'APT-USD', 'XLM-USD', 'XMR-USD', 'STX-USD', 'MKR-USD', 'HBAR-USD', 'FIL-USD', 'OKB-USD', 'VET-USD',
-                          'ATOM-USD', 'MNT-USD', 'ARB-USD', 'CRO-USD', 'INJ-USD', 'IMX-USD', 'SUI-USD', 'OP-USD', 'GRT-USD', 'FDUSD-USD']
-
-    crypto_names = ['Bitcoin', 'Ethereum', 'USD Coin', 'BNB', 'Solana', 'USD Coin', 'XRP', 'Toncoin', 'Dogecoin',
-                    'Cardano', 'TRON', 'Avalanche', 'Shiba Inu', 'Wrapped Bitcoin', 'Polkadot', 'Chainlink', 'Bitcoin Cash', 'NEAR Protocol',
-                      'Polygon', 'Litecoin', 'Dai', 'UNUS SED LEO', 'Pepe', 'Uniswap', 'Internet Computer', 'Kaspa', 'Artificial Superintelligence Alliance',
-                        'Etherium Classic', 'Aptos', 'Stellar', 'Monero', 'Stacks', 'Maker', 'Hedera', 'Filecoin', 'OKB', 'VeChain',
-                          'Cosmos', 'Mantle', 'Arbitrum', 'Cronos', 'Injective', 'Immutable X', 'Sui', 'Optimism', 'The Graph', 'First Digital USD']
+    # Top cryptos
+    response = requests.get("https://coinranking.com/")
+    soup = BeautifulSoup(response.text, 'html.parser')
+    all_span = soup.find_all("span", attrs={'class': 'profile__subtitle'})
+    all_a = soup.find_all("a", attrs={'class': 'profile__link'})
+    cryptos = [span.text.strip().split("\n")[0] + "-USD" for span in all_span]
+    crypto_names = [a.text.strip() for a in all_a]
 
     data_folder = Path("BlobStorage/DataFiles")
     
-    get_stocks(sp_500, sp_500_names, data_folder,today, "S&P 500", interval='1h')
-    get_stocks(bist_100,bist_names, data_folder,today, "BIST 100", interval='1h')
-    get_stocks(cryptos,crypto_names, data_folder, today, "crypto", interval='1h', is_crypto=True)
-    get_stocks(london_exc, london_name, data_folder, today, "FTSE 100", interval = '1h')
-    get_stocks(stoxx,stoxx_name,data_folder, today, "Stoxx Europe 50", interval='1h')
-    get_stocks(hk_tickers,hk_name, data_folder, today, "Hang Seng Index", interval='1h')
+    getStocks(sp_500, sp_500_names, data_folder,today, "S&P 500", interval='1h')
+    getStocks(bist_100,bist_names, data_folder,today, "BIST 100", interval='1h')
+    getStocks(cryptos,crypto_names, data_folder, today, "crypto", interval='1h', is_crypto=True)
+    getStocks(london_exc, london_name, data_folder, today, "FTSE 100", interval = '1h')
+    getStocks(stoxx,stoxx_name,data_folder, today, "Stoxx Europe 50", interval='1h')
+    getStocks(hk_tickers,hk_name, data_folder, today, "Hang Seng Index", interval='1h')
     getCurrency(data_folder,today_tr)
 
-  # index them all at the end
+    # index them all at the end
     create_index.main()
     
 def fetch_schedule():
@@ -242,15 +253,16 @@ def fetch_schedule():
      if file.name.endswith(".json"):
         os.unlink(file.path)
   
-  #schedule.every().monday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
-  #schedule.every().tuesday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
-  #schedule.every().wednesday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
-  #schedule.every().thursday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
-  #schedule.every().friday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
+  schedule.every().monday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
+  schedule.every().tuesday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
+  schedule.every().wednesday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
+  schedule.every().thursday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
+  schedule.every().friday.at("23:30", pytz.timezone("Europe/Istanbul")).do(fetchAll)
   
-  #while True:
-  #  schedule.run_pending()
-  #  time.sleep(1)
-
-fetch_schedule()
-fetchAll()
+  while True:
+   schedule.run_pending()
+   time.sleep(1)
+  
+if __name__ == '__main__':
+  fetch_schedule()
+  fetchAll()
